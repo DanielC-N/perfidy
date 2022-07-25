@@ -33,11 +33,14 @@ function LoadSteps({setSpecSteps, setNextStepId}) {
         reader.addEventListener('load', (event) => {
             const loadedJson = JSON.parse(event.target.result);
             loadedJson
-                .filter(st => st.type === "Transform")
+                .filter(st => {
+                    return st.type === "Transform" && stepTemplates.Transform[st.name] != null;
+                })
                 .forEach(
                     st => {
-                        st.code = stepTemplates.Transform[st.name].code;
-                        st.description = stepTemplates.Transform[st.name].description;
+                        let tf = stepTemplates.Transform[st.name];
+                        st.code = tf.code;
+                        st.description = tf.description;
                     }
                 );
             setSpecSteps(loadedJson);

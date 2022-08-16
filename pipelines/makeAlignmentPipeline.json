@@ -1,23 +1,23 @@
 [
   {
     "id": 1,
-    "title": "USFM from DCS",
+    "title": "Source 1",
     "type": "Source",
     "sourceLocation": "http",
     "outputType": "text",
-    "httpUrl": "https://git.door43.org/unfoldingWord/en_ust/raw/branch/master/57-TIT.usfm"
+    "httpUrl": "https://git.door43.org/unfoldingWord/el-x-koine_ugnt/raw/branch/master/57-TIT.usfm"
   },
   {
     "id": 2,
-    "title": "Selectors",
+    "title": "Source 2",
     "type": "Source",
     "sourceLocation": "local",
-    "localValue": "{\"org\": \"dcs\", \"lang\": \"en\", \"abbr\": \"ust\"}",
+    "localValue": "{\"org\": \"dcs\", \"lang\": \"grc\", \"abbr\": \"ugnt\"}",
     "outputType": "json"
   },
   {
     "id": 3,
-    "title": "USFM to PERF",
+    "title": "Transform 3",
     "name": "usfm2perf",
     "type": "Transform",
     "inputs": [
@@ -42,9 +42,16 @@
   },
   {
     "id": 4,
-    "title": "Display PERF",
+    "title": "Display 4",
     "type": "Display",
     "inputType": "json",
     "inputSource": "Transform 3 perf"
+  },
+  {
+    "id": 5,
+    "title": "Display 5",
+    "type": "Display",
+    "inputType": "text",
+    "inputSource": "Source 1"
   }
 ]

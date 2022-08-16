@@ -42,9 +42,29 @@
   },
   {
     "id": 4,
-    "title": "Display PERF",
+    "title": "Transform 4",
+    "name": "verseWords",
+    "type": "Transform",
+    "inputs": [
+      {
+        "name": "perf",
+        "type": "json",
+        "source": "Transform 3 perf"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "verseWords",
+        "type": "json"
+      }
+    ],
+    "description": "PERF=>JSON: Counts words occurrences"
+  },
+  {
+    "id": 5,
+    "title": "Verse Words",
     "type": "Display",
     "inputType": "json",
-    "inputSource": "Transform 3 perf"
+    "inputSource": "Transform 4 verseWords"
   }
 ]

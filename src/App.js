@@ -1,15 +1,24 @@
 import React, {useState} from 'react';
 import {useProskomma} from 'proskomma-react-hooks';
 import deepCopy from 'deep-copy-all';
-
 import StepSpec from "./components/StepSpec";
 import stepTemplates from "./lib/stepTemplates";
 import runCallback from "./lib/runCallback";
-import DisplayResult from "./components/DisplayResult";
+// import DisplayResult from "./components/DisplayResult";
 import DisplayIssues from "./components/DisplayIssues";
 import LoadSteps from "./components/LoadSteps";
+import Tooltip from '@mui/material/Tooltip';
+import SaveIcon from '@mui/icons-material/Save';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
+import AddIcon from '@mui/icons-material/Add';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import Popover from '@mui/material/Popover';
+import CloseIcon from '@mui/icons-material/Close';
+import MenuItem from '@mui/material/MenuItem';
 
 import './App.css';
+import EditorWrapper from './components/EditorWrapper';
 
 function App() {
     const [specSteps, setSpecSteps] = useState([]);
@@ -17,6 +26,8 @@ function App() {
     const [results, setResults] = useState([]);
     const [runIssues, setRunIssues] = useState([]);
     const [expandSpecs, setExpandSpecs] = useState(true);
+    const [anchorEl, setAnchorEl] = useState(null);
+
 
     const {proskomma} = useProskomma({verbose: false});
 
@@ -96,22 +107,38 @@ function App() {
         setRunIssues([]);
     }
 
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloses = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
     return (
         <div className="App">
             <header className="App-header">
                 <h1 className="program-title">
-<span className="tooltip">
-                                <span className="tooltiptext rtooltiptext">Logo, ready for First PERF World Dev Conference</span>
-    <img className="logo" src={"favicon.ico"} alt="Perfidy Logo"/>
-</span>
                     <span className="tooltip">
-                                <span className="tooltiptext rtooltiptext">The state of being deceitful and untrustworthy</span>
+                        <span
+                            className="tooltiptext rtooltiptext">Logo, ready for First PERF World Dev Conference</span>
+                            <img className="logo" src={"favicon.ico"} alt="Perfidy Logo"/>
+                        </span>
+                    <span className="tooltip">
+                            <span
+                                className="tooltiptext rtooltiptext">The state of being deceitful and untrustworthy</span>
                         {'Perfidy '}
-                    </span>
+                            </span>
                     <span className="tooltip">
-                                <span
-                                    className="tooltiptext rtooltiptext">It's called Perfidy because... oh never mind</span>
-                    <span className="smaller-program-title"> - an IDE for PERF</span>
+                            <span
+                                className="tooltiptext rtooltiptext"
+                            >
+                            It's called Perfidy because... oh never mind
+                            </span>
+                        <span className="smaller-program-title"> - an IDE for PERF</span>
                     </span>
                 </h1>
             </header>
@@ -119,83 +146,81 @@ function App() {
                 <div className="spec-pane">
                     <div className="spec-inner">
                         <h2 className="spec-title">
-                    <span className="tooltip">
-                                <span className="tooltiptext rtooltiptext">Build your Pipeline Here</span>
-                        {"Spec "}
-                    </span>
-                            <span className=" add-step-button tooltip">
-                                <span className="tooltiptext ltooltiptext">Add a Display Step</span>
-                            <button
-                                className="add-step-button"
-                                onClick={() => addStepCallback('Display')}
-                            >
-                                +D
-                            </button>
+                            <span className="tooltip">
+                            <span className="tooltiptext rtooltiptext">Build your Pipeline Here</span>
+                                {"Spec "}
                             </span>
-                            <span className=" add-step-button tooltip">
-                                <span className="tooltiptext ltooltiptext">Add a Transform Step</span>
-                            <button
-                                className="add-step-button"
-                                onClick={() => addStepCallback('Transform')}
+                            <Tooltip title="Add Display,Transform and Source steps" placement="bottom" arrow>
+                                <button aria-describedby={id} className="add-step-button" onClick={handleClick}>
+                                    <AddIcon/>
+                                </button>
+                            </Tooltip>
+                            <Popover
+                                id={id}
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={handleCloses}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
                             >
-                                +T
-                            </button>
-                            </span>
-                            <span className=" add-step-button tooltip">
-                                <span className="tooltiptext ltooltiptext">Add a Source Step</span>
-                            <button
-                                className="add-step-button"
-                                onClick={() => addStepCallback('Source')}
-                            >
-                                +S
-                            </button>
-                            </span>
-                            <span className=" spec-button tooltip">
-                                <span className="tooltiptext rtooltiptext">Load Steps from File</span>
+                                <MenuItem value={10} onClick={() => addStepCallback('Display')}>Display</MenuItem>
+                                <MenuItem value={20} onClick={() => addStepCallback('Transform')}>Transform</MenuItem>
+                                <MenuItem value={30} onClick={() => addStepCallback('Source')}>Source</MenuItem>
+                            </Popover>
                             <LoadSteps
                                 setSpecSteps={setSpecSteps}
                                 setNextStepId={setNextStepId}
                             />
-                            </span>
-                            <span className=" spec-button tooltip">
-                                <span className="tooltiptext rtooltiptext">Save Steps to File</span>
-                            <button
-                                className="spec-button"
-                                onClick={
-                                    () => {
-                                        const a = document.createElement('a');
-                                        a.download = 'mySpecSteps.json';
-                                        const blob = new Blob(
-                                            [JSON.stringify(
-                                                cleanSteps(specSteps),
-                                                null,
-                                                2
-                                            )
-                                            ],
-                                            {type: 'application/json'}
-                                        );
-                                        a.href = URL.createObjectURL(blob);
-                                        a.addEventListener('click', (e) => {
-                                            setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-                                        });
-                                        a.click();
+                            <Tooltip title="Save Steps to File" placement="bottom" arrow>
+                                <button
+                                    size="small"
+                                    variant='contained'
+                                    className="spec-button"
+                                    onClick={
+                                        () => {
+                                            const a = document.createElement('a');
+                                            a.download = 'mySpecSteps.json';
+                                            const blob = new Blob(
+                                                [JSON.stringify(
+                                                    cleanSteps(specSteps),
+                                                    null,
+                                                    2
+                                                )
+                                                ],
+                                                {type: 'application/json'}
+                                            );
+                                            a.href = URL.createObjectURL(blob);
+                                            a.addEventListener('click', (e) => {
+                                                setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+                                            });
+                                            a.click();
+                                        }
                                     }
-                                }
-                            >
-                                {"P>"}
-                            </button>
-                            </span>
-                            <span className=" spec-button tooltip">
-                                <span className="tooltiptext rtooltiptext">Expand All Steps</span>
+                                >
+                                    <SaveIcon/>
+                                </button>
+                            </Tooltip>
                             <button
+                                size="small"
+                                variant='contained'
                                 className="spec-button"
                                 onClick={
                                     () => setExpandSpecs(!expandSpecs)
                                 }
                             >
-                                {expandSpecs ? "><" : "<>"}
+                                {expandSpecs ?
+                                    <Tooltip title="Expand All Steps" placement="bottom" arrow>
+                                        <UnfoldLessIcon/>
+                                    </Tooltip>
+                                    :
+                                    <Tooltip title="Collapse All Steps" placement="bottom" arrow>
+                                        <UnfoldMoreIcon/>
+                                    </Tooltip>
+                                }
                             </button>
-                            </span>
+
                         </h2>
                         {
                             specSteps.map(
@@ -218,8 +243,10 @@ function App() {
                     <div className="result-inner">
                         <h2 className="result-title">
                             <span className=" run-button tooltip">
-                                <span className="tooltiptext rtooltiptext">Run the steps</span>
+                            <Tooltip title="Run the steps" placement="bottom" arrow>
                             <button
+                                size="small"
+                                variant='contained'
                                 className="run-button"
                                 onClick={() => runCallback({
                                     specSteps,
@@ -229,22 +256,24 @@ function App() {
                                 })}
                                 disabled={results.length > 0 || runIssues.length > 0}
                             >
-                                {">>"}
+                                <PlayArrowIcon/>
                             </button>
+                            </Tooltip>
                             </span>
                             <span className="tooltip">
                                 <span className="tooltiptext rtooltiptext">See the Results of your Pipeline Here</span>
                                 {"Result "}
                             </span>
                             <span className=" clear-results-button tooltip">
-                                <span className="tooltiptext ltooltiptext">Delete the results</span>
+                            <Tooltip title="Delete the results" placement="bottom" arrow>
                             <button
                                 className="clear-results-button"
                                 onClick={clearResultsCallback}
-                                disabled={results.length === 0 && runIssues.length === 0}
+                                // disabled={results.length === 0 && runIssues.length === 0}
                             >
-                                X
+                                <CloseIcon/>
                             </button>
+                            </Tooltip>
                             </span>
                         </h2>
                         {
@@ -253,11 +282,9 @@ function App() {
                         }
                         {
                             runIssues.length === 0 &&
-                            results.map(
-                                (r, n) =>
-                                    <DisplayResult key={n} result={r}/>
-                            )
+                            <EditorWrapper results={results}/>
                         }
+
                     </div>
                 </div>
             </div>

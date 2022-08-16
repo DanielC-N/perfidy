@@ -1,4 +1,4 @@
-import {ProskommaRenderFromJson, identityActions, mergeActions} from 'proskomma-json-tools';
+import {ProskommaRenderFromJson, transforms, mergeActions} from 'proskomma-json-tools';
 
 const localJustTheBibleActions = {
     startMilestone: [
@@ -66,20 +66,21 @@ const justTheBibleCode = function ({perf}) {
             actions: mergeActions(
                 [
                     localJustTheBibleActions,
-                    identityActions
+                    transforms.identityActions
                 ]
             )
         }
     );
     const output = {};
     cl.renderDocument({docId: "", config: {}, output});
-    return {perf: output}; // identityActions currently put PERF directly in output
+    return {perf: output.perf}; // identityActions currently put PERF directly in output
 }
 
 const justTheBible = {
     name: "justTheBible",
     type: "Transform",
     description: "PERF=>PERF: Strips most markup",
+    documentation: "This transform removes milestones, wrappers and most marks. It has been used in several pipelines. It may also be stripping metaContent.",
     inputs: [
         {
             name: "perf",

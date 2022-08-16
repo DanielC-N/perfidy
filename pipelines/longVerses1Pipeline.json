@@ -42,9 +42,29 @@
   },
   {
     "id": 4,
-    "title": "Display PERF",
+    "title": "Check for Long Verses",
+    "name": "longVerses1",
+    "type": "Transform",
+    "inputs": [
+      {
+        "name": "perf",
+        "type": "json",
+        "source": "Transform 3 perf"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "report",
+        "type": "json"
+      }
+    ],
+    "description": "PERF=>JSON: Generates naive long verses report"
+  },
+  {
+    "id": 5,
+    "title": "Long Verses",
     "type": "Display",
     "inputType": "json",
-    "inputSource": "Transform 3 perf"
+    "inputSource": "Transform 4 report"
   }
 ]
